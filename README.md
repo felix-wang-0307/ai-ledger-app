@@ -1,36 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 💸 SpendWise — Smart Expense Tracking with LLM + OCR + Supabase
 
-First, run the development server:
+SpendWise is a powerful, web-based expense tracking application built with **Next.js**, **Supabase**, and **Large Language Models (LLM) APIs**. It enables users to manage bills and expenses manually or automatically via receipt images and natural language input.
+
+---
+
+## ✨ Features
+
+- ✅ **Manual Bill Entry**: Amount, category, currency, date, notes
+- 🤗 **Multiple LLM Support**: Uses [Together AI](https://togeth.ai) to support various trending LLMs (e.g. GPT, Gemini, DeepSeek, Qwen)
+- 🧠 **LLM-Powered Auto Categorization**: Suggests categories from description or history
+- 🧾 **Receipt OCR Upload**: Extracts bill info from images (screenshots, paper receipts)
+- 💬 **Natural Language Parsing**: Input like `gas 45.5`, `Starbucks 3.8` and GPT fills details
+- 📊 **Statistics & Charts**: Visualize spending by category and time
+- 🔐 **User Auth**: Secure email/password signup/login via Supabase Auth
+- 🌎 **Multi-device**: Fully responsive, works on mobile/tablet/desktop
+
+---
+
+## 🛠 Tech Stack
+
+| Layer         | Tech                        |
+|---------------|-----------------------------|
+| Frontend      | Next.js (App Router), [Ant Design](https://ant.design), [Tailwind CSS](https://tailwindcss.com) |
+| Backend       | Next.js API Routes (Edge/serverless) |
+| Auth & DB     | Supabase (Postgres, Auth, Storage) |
+| OCR           | Tesseract.js |
+| LLM           | [Together AI](https://togeth.ai) or [OpenAI](https://openai.com) |
+| Charts        | [Chart.js](https://www.chartjs.org) |
+| Deployment    | [Vercel](https://vercel.com) for frontend, [Supabase](https://supabase.com) for backend |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/your-username/ai-ledger.git
+cd ai-ledger
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment
+
+Create `.env.local` file:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_TOGETHER_API_KEY=your-together-api-key
+```
+
+> Supabase credentials found under Project → Settings → API
+
+---
+
+## 🔧 Database Schema
+
+### `auth.users` (built-in)
+
+- Managed by Supabase Auth (email/password)
+
+### `profiles`
+
+```sql
+create table profiles (
+  id uuid primary key references auth.users,
+  display_name text,
+  created_at timestamp default now()
+);
+```
+
+### `bills`
+
+```sql
+create table bills (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade,
+  amount numeric not null,
+  currency text not null,
+  category text,
+  description text,
+  bill_date date,
+  image_url text,
+  created_at timestamp with time zone default now()
+);
+```
+
+---
+
+## 🧪 Scripts
+
+### Dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Build for production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🖼️ Screenshots
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧠 How AI Is Used
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `gpt.ts` utility sends prompts to OpenAI for:
+  - Bill category classification
+  - Parsing natural language or OCR text into structured bill data
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Optional: users can enter their own GPT API key for privacy and control
+
+---
+
+## 🧳 Deployment
+
+- 🔥 **Frontend + API**: [Vercel](https://vercel.com) (1-click from GitHub)
+- ☁️ **Database/Auth**: [Supabase](https://supabase.com) (Postgres + Auth + File Upload)
+- 💬 **LLM** : [Together AI](https://togeth.ai) or [OpenAI](https://openai.com) (API key required)
+- 🤖 **OCR**:
+  - Local: Tesseract.js (in-browser, no cost)
+  - Cloud: Google Cloud Vision API
+
+---
+
+## 🙋‍♂️ Future Plans
+
+- Recurring bills / reminders
+- Export to CSV or email reports
+- Budget goals
+- Group/shared expenses (like Splitwise)
+- Stripe for billing if SaaS
+
+---
