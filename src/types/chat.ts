@@ -1,8 +1,21 @@
 
 export interface IChatMessage {
-  role: "user" | "assistant" | "system";
+  messageId?: string;
+  role: "user" | "assistant" | "system" | "tool";
   content: string;
   imgUrl?: string;
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
 }
+
+export interface IChatHistory {
+  sessionId: string;
+  messages: IChatMessage[];
+  createdAt?: string; // ISO date 
+  updatedAt?: string; // ISO date
+}
+
+export interface IChatBubbleItem extends IChatMessage {
+  key: string;
+};
+
