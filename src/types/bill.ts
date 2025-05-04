@@ -5,6 +5,7 @@ export interface IBill {
   amount: number;
   currency: string;
   category?: string;
+  subcategory?: string;
   description?: string;
   bill_date?: string; // ISO date
   image_url?: string;

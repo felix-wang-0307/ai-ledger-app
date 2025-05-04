@@ -8,6 +8,7 @@ import ChatSender from "./components/ChatSender";
 import { IChatMessage } from "@/types/chat";
 import { getCurrentUser } from "@/lib/auth";
 import ChatSideBar from "./components/ChatSideBar";
+import ChatTitle from "./components/ChatTitle";
 
 const mockMessages: IChatMessage[] = [
   { role: "user", content: "Hello, how are you?" },
@@ -43,6 +44,11 @@ const ChatPage: React.FC = () => {
 
       {/* 右侧聊天主区域 */}
       <div className="flex flex-col flex-1">
+        {/* 聊天标题 */}
+        <div className="p-4 bg-white">
+          <ChatTitle title="Chat" subTitle="Test"/>
+        </div>
+
         {/* 聊天内容区域（可滚动） */}
         <div className="flex-1 overflow-y-auto p-4">
           <ChatBubbles messages={mockMessages} />
