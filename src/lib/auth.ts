@@ -18,3 +18,9 @@ export async function signIn(email: string, password: string) {
 export async function signOut() {
   await supabase.auth.signOut();
 }
+
+export async function getCurrentUser() {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return user;
+}

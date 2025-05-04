@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { togetherClient } from "@/lib/llm/together";
 import { ILLMConfig } from "@/types/llm";
+import { IChatMessage } from "@/types/chat";
 
 export function useLLMRequest({
   model = "Qwen/Qwen3-235B-A22B-fp8-tput",
@@ -26,7 +27,7 @@ export function useLLMRequest({
     ...config,
   };
 
-  const requestLLM = async (message: string) => {
+  const requestLLM = async (message: string, history: IChatMessage[]) => {
     setLoading(true);
     setError(null);
     setResponse("");
@@ -34,7 +35,7 @@ export function useLLMRequest({
     try {
       const stream = await togetherClient.chat.completions.create({
         model,
-        messages: [{ role: "user", content: message }],
+        messages: [...history, { role: "user", content: message }],
         ...defaultConfig,
         stream: true,
       });
