@@ -6,9 +6,9 @@ import React from "react";
 import ChatBubbles from "./components/ChatBubbles";
 import ChatSender from "./components/ChatSender";
 import { IChatMessage } from "@/types/chat";
-import { getCurrentUser } from "@/lib/auth";
 import ChatSideBar from "./components/ChatSideBar";
 import ChatTitle from "./components/ChatTitle";
+import { withAuth } from "@/lib/withAuth";
 
 const mockMessages: IChatMessage[] = [
   { role: "user", content: "Hello, how are you?" },
@@ -33,8 +33,6 @@ const mockMessages: IChatMessage[] = [
 ];
 
 const ChatPage: React.FC = () => {
-  const user = getCurrentUser() || { id: "123", name: "John Doe" };
-
   return (
     <div className="flex h-screen">
       {/* 左侧边栏 */}
@@ -56,11 +54,11 @@ const ChatPage: React.FC = () => {
 
         {/* 固定底部输入框 */}
         <div className="p-4 bg-white">
-          <ChatSender />
+          <ChatSender onChange={()=>{}} onCancel={()=>{}} onSubmit={()=>{}} onPasteFile={()=>{}}/>
         </div>
       </div>
     </div>
   );
 };
 
-export default ChatPage;
+export default withAuth(ChatPage);
