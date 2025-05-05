@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/db";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import clsx from "clsx"; 
 
 interface AuthFormProps {
@@ -16,6 +16,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<Record<string, string>>({});
   const [showSubmitError, setShowSubmitError] = useState(false);
+  const redirectTo = useSearchParams().get("redirectTo") || "/";
 
   const router = useRouter();
 
@@ -111,7 +112,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       }
     }
 
-    router.push("/");
+    router.push(redirectTo);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
