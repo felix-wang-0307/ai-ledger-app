@@ -1,6 +1,7 @@
 "use client";
 import { signInWith } from "@/lib/auth";
 import { GoogleOutlined, GithubOutlined, AppleFilled, XOutlined } from "@ant-design/icons";
+import { Provider } from "@supabase/supabase-js";
 
 function getIcon(provider: string) {
   const className = "text-gray-900";
@@ -10,13 +11,13 @@ function getIcon(provider: string) {
     apple: <AppleFilled className={className}/>,
     twitter: <XOutlined className={className}/>,
   }
-  return assets[provider]
+  return assets[provider] || <XOutlined className={className}/>;
 }
 
 export default function ContinueWith({
   provider,
 }: {
-  provider: "google" | "github" | "apple" | "twitter";
+  provider: Provider;
 }) {
   return (
     <button

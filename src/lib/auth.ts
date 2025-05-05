@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/db";
+import { Provider } from "@supabase/supabase-js";
 
 export async function signUp(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({ email, password });
@@ -15,7 +16,7 @@ export async function signIn(email: string, password: string) {
   return data;
 }
 
-export async function signInWith(provider: 'google' | 'github' | 'apple' | 'twitter') {
+export async function signInWith(provider: Provider) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider
   });
