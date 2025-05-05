@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/db";
 import { useRouter } from "next/navigation";
-import clsx from "clsx"; // optional utility for cleaner class conditionals
+import clsx from "clsx"; 
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -225,7 +225,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       <button
         type="submit"
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer"
-        disabled={Object.keys(error).length > 0}
+        disabled={Object.values(error).some((e) => e?.trim() !== "")}
       >
         {type === "signup" ? "Sign Up" : "Log In"}
       </button>

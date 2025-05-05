@@ -15,6 +15,13 @@ export async function signIn(email: string, password: string) {
   return data;
 }
 
+export async function signInWith(provider: 'google' | 'github' | 'apple' | 'twitter') {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider
+  });
+  if (error) console.error(`Error signing in with ${provider}:`, error);
+}
+
 export async function signOut() {
   await supabase.auth.signOut();
 }
