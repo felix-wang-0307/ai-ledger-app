@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Conversations } from '@ant-design/x';
 import type { ConversationsProps } from '@ant-design/x';
-import { App, theme, Button, Space } from 'antd';
+import { App, theme, Button } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useUser } from '@supabase/auth-helpers-react';
 
@@ -19,6 +19,7 @@ const LOCAL_STORAGE_KEY = 'lastSessionId';
 
 const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) => {
   const user = useUser();
+  console.log('User:', user);
   const { token } = theme.useToken();
   const { message: antdMessage } = App.useApp();
   const [sessions, setSessions] = useState<IChatSession[]>([]);
@@ -47,11 +48,13 @@ const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) =
 
   // Create new session
   const handleNewChat = async () => {
+    console.log('Creating new chat session');
     if (!user) return;
-
     const newSession = await createChatSession(user.id);
+
     if (newSession) {
       const updatedSessions = [newSession, ...sessions];
+      console.log('Updated sessions:', updatedSessions);
       setSessions(updatedSessions);
       setActiveKey(newSession.sessionId);
       onSelect?.(newSession.sessionId);

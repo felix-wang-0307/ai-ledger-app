@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/db';
 
 export function withAuth(Component: React.FC) {
-  return function ProtectedComponent(props: any) {
+  return function ProtectedComponent(props: React.ComponentProps<typeof Component>) {
     const [isLoading, setIsLoading] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
     const pathname = usePathname();
