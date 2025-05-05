@@ -15,6 +15,14 @@ export interface IChatHistory {
   updatedAt?: string; // ISO date
 }
 
+export interface IChatSession {
+  sessionId: string;
+  title: string;
+  description?: string;
+  createdAt?: string; // ISO date
+  updatedAt?: string; // ISO date
+}
+
 export interface IChatBubbleItem extends IChatMessage {
   key: string;
 };

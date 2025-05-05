@@ -1,12 +1,22 @@
 import { supabase } from '@/lib/db';
-import { IChatHistory, IChatMessage } from '@/types/chat'; // Adjust if paths differ
+import { IChatHistory, IChatMessage, IChatSession } from '@/types/chat'; // Adjust if paths differ
 import { v4 } from 'uuid'; // UUID for session ID
 
 // 🔵 CREATE a new session
-export async function createChatSession(userId: string, sessionId?: string): Promise<IChatHistory | null> {
+export async function createChatSession(
+  userId: string,
+  sessionId?: string,
+  title = 'New Chat',
+  description?: string
+): Promise<IChatSession | null> {
   const { data, error } = await supabase
     .from('chat_histories')
-    .insert({ user_id: userId, session_id: sessionId })
+    .insert({
+      user_id: userId,
+      session_id: sessionId,
+      title,
+      description
+    })
     .select()
     .single();
 
@@ -17,14 +27,15 @@ export async function createChatSession(userId: string, sessionId?: string): Pro
 
   return {
     sessionId: data.session_id,
-    messages: [],
+    title: data.title,
+    description: data.description,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   };
 }
 
 // 🔵 FETCH all chat sessions for the current user
-export async function getUserChatSessions(): Promise<IChatHistory[]> {
+export async function getUserChatSessions(): Promise<IChatSession[]> {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return [];
 
@@ -41,11 +52,13 @@ export async function getUserChatSessions(): Promise<IChatHistory[]> {
 
   return data.map((s) => ({
     sessionId: s.session_id,
-    messages: [],
+    title: s.title,
+    description: s.description,
     createdAt: s.created_at,
     updatedAt: s.updated_at,
   }));
 }
+
 
 // 🔵 FETCH messages for a session
 export async function getMessagesForSession(sessionId: string): Promise<IChatMessage[]> {
@@ -71,30 +84,35 @@ export async function getMessagesForSession(sessionId: string): Promise<IChatMes
 }
 
 // 🔵 FETCH a specific chat session by ID, if not exist, CREATE one
-export async function getOrCreateChatSession(userId: string, sessionId?: string): Promise<IChatHistory | null> {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return null;
-  if (!sessionId) {
-    sessionId = v4();
+export async function getOrCreateChatSession(
+  userId: string,
+  sessionId?: string
+): Promise<IChatHistory | null> {
+  const id = sessionId ?? v4();
+
+  const { data, error } = await supabase
+    .from('chat_histories')
+    .select('*')
+    .eq('session_id', id)
+    .single();
+
+  if (!data || error) {
+    const created = await createChatSession(userId, id);
+    return created
+      ? { sessionId: created.sessionId, messages: [] }
+      : null;
   }
-  const messages = await getMessagesForSession(sessionId);
-  if (messages.length > 0) {
-    return {
-      sessionId,
-      messages
-    };
-  } else {
-    const session = await createChatSession(userId, sessionId);
-    if (!session) {
-      console.error('Error creating chat session:', session);
-      return null;
-    }
-    return {
-      sessionId: session.sessionId,
-      messages: []
-    };
-  }
+
+  const messages = await getMessagesForSession(id);
+
+  return {
+    sessionId: id,
+    messages,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
 }
+
 
 // 🔵 ADD a message to a session
 export async function addMessageToSession(sessionId: string, message: Omit<IChatMessage, 'messageId' | 'createdAt' | 'updatedAt'>): Promise<IChatMessage | null> {
