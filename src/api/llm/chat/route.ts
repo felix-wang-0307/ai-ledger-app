@@ -9,7 +9,7 @@ const together = new Together({
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, model = 'Qwen/Qwen3-235B-A22B-fp8-tput' } = await req.json();
+    const { messages, model = 'deepseek-ai/DeepSeek-V3' } = await req.json();
 
     const response = await together.chat.completions.create({
       model,

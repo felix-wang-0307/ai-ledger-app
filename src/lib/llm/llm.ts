@@ -3,7 +3,7 @@
 import Together from 'together-ai';
 import { IChatMessage } from '@/types/chat';
 
-const DEFAULT_MODEL = "Qwen/Qwen3-235B-A22B-fp8-tput";
+const DEFAULT_MODEL = "deepseek-ai/DeepSeek-V3";
 
 const together = new Together({
   apiKey: process.env.TOGETHER_API_KEY,

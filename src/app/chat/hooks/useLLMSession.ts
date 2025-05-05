@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { ILLMConfig } from "@/types/llm";
 import { IChatMessage } from "@/types/chat";
 import { useLLMRequest } from "./useLLMRequest";
-import { addMessageToSession, getOrCreateChatSession } from "@/lib/llm/chatSessionServices";
+import { addMessageToSession, getOrCreateChatSession } from "@/lib/chatSessionServices";
 
 export function useLLMSession({
   userId,
   sessionId,
-  model = "Qwen/Qwen3-235B-A22B-fp8-tput",
+  model = "deepseek-ai/DeepSeek-V3",
   config,
 }: {
   userId: string;

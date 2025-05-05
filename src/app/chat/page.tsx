@@ -8,6 +8,7 @@ import { IChatMessage } from "@/types/chat";
 import ChatSideBar from "./components/ChatSideBar";
 import ChatTitle from "./components/ChatTitle";
 import { withAuth } from "@/lib/auth/withAuth";
+import { useUserProfile } from "../profile/hooks/useUserProfile";
 
 const mockMessages: IChatMessage[] = [
   { role: "user", content: "Hello, how are you?" },
@@ -32,6 +33,9 @@ const mockMessages: IChatMessage[] = [
 ];
 
 const ChatPage: React.FC = () => {
+  const { profile, loading } = useUserProfile();
+  console.log("User Profile:", profile);
+  console.log("Loading:", loading);
   return (
     <div className="flex h-screen">
       {/* 左侧边栏 */}

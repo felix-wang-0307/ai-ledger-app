@@ -5,7 +5,7 @@ import { ILLMConfig } from "@/types/llm";
 import { IChatMessage } from "@/types/chat";
 
 export function useLLMRequest({
-  model = "Qwen/Qwen3-235B-A22B-fp8-tput",
+  model = "deepseek-ai/DeepSeek-V3",
   config,
 }: {
   model?: string;
