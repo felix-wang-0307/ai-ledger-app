@@ -1,51 +1,155 @@
-"use client";
-import { DeleteOutlined, EditOutlined, StopOutlined } from '@ant-design/icons';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { Conversations } from '@ant-design/x';
 import type { ConversationsProps } from '@ant-design/x';
-import { App, type GetProp, theme } from 'antd';
-import React from 'react';
+import { App, theme, Button, Space } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { useUser } from '@supabase/auth-helpers-react';
 
-const items: GetProp<ConversationsProps, 'items'> = Array.from({ length: 14 }).map((_, index) => ({
-  key: `item${index + 1}`,
-  label: `Conversation Item ${index + 1}`,
-  disabled: index === 3,
-}));
+import { IChatSession } from '@/types/chat';
+import {
+  createChatSession,
+  getUserChatSessions,
+  deleteChatSession,
+} from '@/lib/chatSessionServices';
+import { supabase } from '@/lib/db';
 
-const ChatSideBar = () => {
-  const { message } = App.useApp();
+const LOCAL_STORAGE_KEY = 'lastSessionId';
+
+const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) => {
+  const user = useUser();
   const { token } = theme.useToken();
+  const { message: antdMessage } = App.useApp();
+  const [sessions, setSessions] = useState<IChatSession[]>([]);
+  const [activeKey, setActiveKey] = useState<string | undefined>();
 
-  const style = {
-    borderRadius: token.borderRadius,
+  // Fetch user sessions
+  useEffect(() => {
+    if (!user) return;
+
+    getUserChatSessions().then((fetched) => {
+      setSessions(fetched);
+
+      // Try to auto-select last session
+      const last = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const fallback = fetched[0]?.sessionId;
+      const sessionToSelect = fetched.find((s) => s.sessionId === last)
+        ? last
+        : fallback;
+
+      if (sessionToSelect) {
+        setActiveKey(sessionToSelect);
+        onSelect?.(sessionToSelect);
+      }
+    });
+  }, [onSelect, user]);
+
+  // Create new session
+  const handleNewChat = async () => {
+    if (!user) return;
+
+    const newSession = await createChatSession(user.id);
+    if (newSession) {
+      const updatedSessions = [newSession, ...sessions];
+      setSessions(updatedSessions);
+      setActiveKey(newSession.sessionId);
+      onSelect?.(newSession.sessionId);
+      localStorage.setItem(LOCAL_STORAGE_KEY, newSession.sessionId);
+    }
+  };
+
+  const handleSelect = (key: string) => {
+    setActiveKey(key);
+    onSelect?.(key);
+    localStorage.setItem(LOCAL_STORAGE_KEY, key);
   };
 
   const menuConfig: ConversationsProps['menu'] = (conversation) => ({
     items: [
       {
-        label: 'Operation 1',
-        key: 'operation1',
+        label: 'Rename',
+        key: 'rename',
         icon: <EditOutlined />,
       },
       {
-        label: 'Operation 2',
-        key: 'operation2',
-        icon: <StopOutlined />,
-        disabled: true,
-      },
-      {
-        label: 'Operation 3',
-        key: 'operation3',
+        label: 'Delete',
+        key: 'delete',
         icon: <DeleteOutlined />,
         danger: true,
       },
     ],
-    onClick: (menuInfo) => {
+    onClick: async (menuInfo) => {
       menuInfo.domEvent.stopPropagation();
-      message.info(`Click ${conversation.key} - ${menuInfo.key}`);
+
+      if (menuInfo.key === 'delete') {
+        const success = await deleteChatSession(conversation.key);
+        if (success) {
+          antdMessage.success('Session deleted');
+          setSessions((prev) => prev.filter((s) => s.sessionId !== conversation.key));
+
+          // If the deleted one was active, switch to first
+          if (activeKey === conversation.key) {
+            const fallback = sessions.find((s) => s.sessionId !== conversation.key)?.sessionId;
+            if (fallback) {
+              setActiveKey(fallback);
+              onSelect?.(fallback);
+              localStorage.setItem(LOCAL_STORAGE_KEY, fallback);
+            }
+          }
+        }
+      }
+
+      if (menuInfo.key === 'rename') {
+        const newTitle = prompt('Rename this session:');
+        if (newTitle?.trim()) {
+          const { error } = await supabase
+            .from('chat_histories')
+            .update({ title: newTitle })
+            .eq('session_id', conversation.key);
+
+          if (!error) {
+            setSessions((prev) =>
+              prev.map((s) =>
+                s.sessionId === conversation.key ? { ...s, title: newTitle } : s
+              )
+            );
+            antdMessage.success('Renamed');
+          }
+        }
+      }
     },
   });
 
-  return <Conversations defaultActiveKey="item1" menu={menuConfig} items={items} style={style} />;
+  const items: ConversationsProps['items'] = sessions.map((s) => ({
+    key: s.sessionId,
+    label: s.title,
+    description: s.description,
+  }));
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="p-3 border-b">
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          block
+          onClick={handleNewChat}
+        >
+          New Chat
+        </Button>
+      </div>
+      <div className="flex-1 overflow-auto">
+        <Conversations
+          items={items}
+          menu={menuConfig}
+          activeKey={activeKey}
+          onActiveChange={handleSelect}
+          style={{ borderRadius: token.borderRadius }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default ChatSideBar;
