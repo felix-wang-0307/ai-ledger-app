@@ -2,13 +2,12 @@
 "use client";
 
 import React from "react";
-// import ChatInterface from './components/ChatInterface';
 import ChatBubbles from "./components/ChatBubbles";
 import ChatSender from "./components/ChatSender";
 import { IChatMessage } from "@/types/chat";
 import ChatSideBar from "./components/ChatSideBar";
 import ChatTitle from "./components/ChatTitle";
-import { withAuth } from "@/lib/withAuth";
+import { withAuth } from "@/lib/auth/withAuth";
 
 const mockMessages: IChatMessage[] = [
   { role: "user", content: "Hello, how are you?" },

@@ -1,6 +1,6 @@
 "use client";
 // import Image from "next/image";
-import { withAuth } from "@/lib/withAuth";
+import { withAuth } from "@/lib/auth/withAuth";
 import ChatPage from "./chat/page";
 
 function Home() {

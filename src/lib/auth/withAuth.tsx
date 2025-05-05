@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { supabase } from './db';
+import { supabase } from '@/lib/db';
 
 export function withAuth(Component: React.FC) {
   return function ProtectedComponent(props: any) {

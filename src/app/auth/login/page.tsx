@@ -7,7 +7,7 @@ export default function LoginPage() {
       <div>
         <AuthForm type="login" />
       </div>
-      <SocialProviders providers={["google", "github"]} />
+      <SocialProviders providers={["google", "github", "guest"]} />
     </>
   );
 }
