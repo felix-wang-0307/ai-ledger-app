@@ -1,71 +1,39 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Conversations } from '@ant-design/x';
 import type { ConversationsProps } from '@ant-design/x';
-import { App, theme, Button } from 'antd';
+import { theme, Button, message } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { useUser } from '@supabase/auth-helpers-react';
-
-import { IChatSession } from '@/types/chat';
-import {
-  createChatSession,
-  getUserChatSessions,
-  deleteChatSession,
-} from '@/lib/chatSessionServices';
 import { supabase } from '@/lib/db';
-
-const LOCAL_STORAGE_KEY = 'lastSessionId';
+import { useUserSessions } from '../hooks/useUserSessions';
 
 const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) => {
-  const user = useUser();
-  console.log('User:', user);
   const { token } = theme.useToken();
-  const { message: antdMessage } = App.useApp();
-  const [sessions, setSessions] = useState<IChatSession[]>([]);
-  const [activeKey, setActiveKey] = useState<string | undefined>();
+  const [antdMessage, contextHolder] = message.useMessage();
 
-  // Fetch user sessions
-  useEffect(() => {
-    if (!user) return;
+  const {
+    sessions,
+    activeKey,
+    selectSession,
+    createSession,
+    deleteSession,
+    renameSession,
+  } = useUserSessions();
 
-    getUserChatSessions().then((fetched) => {
-      setSessions(fetched);
-
-      // Try to auto-select last session
-      const last = localStorage.getItem(LOCAL_STORAGE_KEY);
-      const fallback = fetched[0]?.sessionId;
-      const sessionToSelect = fetched.find((s) => s.sessionId === last)
-        ? last
-        : fallback;
-
-      if (sessionToSelect) {
-        setActiveKey(sessionToSelect);
-        onSelect?.(sessionToSelect);
-      }
-    });
-  }, [onSelect, user]);
-
-  // Create new session
   const handleNewChat = async () => {
-    console.log('Creating new chat session');
-    if (!user) return;
-    const newSession = await createChatSession(user.id);
-
-    if (newSession) {
-      const updatedSessions = [newSession, ...sessions];
-      console.log('Updated sessions:', updatedSessions);
-      setSessions(updatedSessions);
-      setActiveKey(newSession.sessionId);
-      onSelect?.(newSession.sessionId);
-      localStorage.setItem(LOCAL_STORAGE_KEY, newSession.sessionId);
+    const session = await createSession();
+    if (session) {
+      onSelect?.(session.sessionId);
+      antdMessage.success('New session created');
+    } else {
+      antdMessage.error('Failed to create new session');
     }
   };
 
   const handleSelect = (key: string) => {
-    setActiveKey(key);
+    selectSession(key);
     onSelect?.(key);
-    localStorage.setItem(LOCAL_STORAGE_KEY, key);
   };
 
   const menuConfig: ConversationsProps['menu'] = (conversation) => ({
@@ -85,21 +53,13 @@ const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) =
     onClick: async (menuInfo) => {
       menuInfo.domEvent.stopPropagation();
 
+      const sessionId = conversation.key;
+
       if (menuInfo.key === 'delete') {
-        const success = await deleteChatSession(conversation.key);
+        const success = await deleteSession(sessionId);
         if (success) {
           antdMessage.success('Session deleted');
-          setSessions((prev) => prev.filter((s) => s.sessionId !== conversation.key));
-
-          // If the deleted one was active, switch to first
-          if (activeKey === conversation.key) {
-            const fallback = sessions.find((s) => s.sessionId !== conversation.key)?.sessionId;
-            if (fallback) {
-              setActiveKey(fallback);
-              onSelect?.(fallback);
-              localStorage.setItem(LOCAL_STORAGE_KEY, fallback);
-            }
-          }
+          onSelect?.(sessionId); // Update parent
         }
       }
 
@@ -109,15 +69,11 @@ const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) =
           const { error } = await supabase
             .from('chat_histories')
             .update({ title: newTitle })
-            .eq('session_id', conversation.key);
+            .eq('session_id', sessionId);
 
           if (!error) {
-            setSessions((prev) =>
-              prev.map((s) =>
-                s.sessionId === conversation.key ? { ...s, title: newTitle } : s
-              )
-            );
-            antdMessage.success('Renamed');
+            renameSession(sessionId, newTitle);
+            antdMessage.success('Session renamed');
           }
         }
       }
@@ -132,7 +88,8 @@ const ChatSideBar = ({ onSelect }: { onSelect?: (sessionId: string) => void }) =
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-3 border-b">
+      {contextHolder}
+      <div className="p-3">
         <Button
           type="primary"
           icon={<PlusOutlined />}
