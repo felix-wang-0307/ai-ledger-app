@@ -7,12 +7,19 @@ export function useSessionMessages(sessionId?: string) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!sessionId) return;
+    setMessages([]);
+    if (!sessionId) {
+      return;
+    }
 
     setLoading(true);
     getMessagesForSession(sessionId)
       .then(setMessages)
       .finally(() => setLoading(false));
+    
+    return () => {
+      setMessages([]);  // cleanup to avoid memory leaks
+    }
   }, [sessionId]);
 
   const addMessage = async (message: Omit<IChatMessage, 'messageId' | 'createdAt' | 'updatedAt'>) => {
