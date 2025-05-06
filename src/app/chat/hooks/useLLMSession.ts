@@ -56,8 +56,6 @@ export function useLLMSession({
     const newMessage: IChatMessage = {
       role: "user",
       content: message,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
     setHistory((prev) => [...prev, newMessage]);
