@@ -6,16 +6,16 @@ import { v4 } from 'uuid'; // UUID for session ID
 export async function createChatSession(
   userId: string,
   sessionId?: string,
-  title = 'New Chat',
+  title = 'New Ledger',
   description?: string
 ): Promise<IChatSession | null> {
   const { data, error } = await supabase
     .from('chat_histories')
     .insert({
       user_id: userId,
-      session_id: sessionId,
-      title,
-      description
+      session_id: sessionId || v4(),
+      chat_title: title,
+      chat_description: description,
     })
     .select()
     .single();
@@ -27,8 +27,8 @@ export async function createChatSession(
 
   return {
     sessionId: data.session_id,
-    title: data.title,
-    description: data.description,
+    title: data.chat_title,
+    description: data.chat_description,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   };
@@ -52,8 +52,8 @@ export async function getUserChatSessions(): Promise<IChatSession[]> {
 
   return data.map((s) => ({
     sessionId: s.session_id,
-    title: s.title,
-    description: s.description,
+    title: s.chat_title,
+    description: s.chat_description,
     createdAt: s.created_at,
     updatedAt: s.updated_at,
   }));
