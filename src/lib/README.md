@@ -1,0 +1,2 @@
+# The `/lib` Directory - The "Backend" of the Project
+This directory contains the core library files for the project. It includes the main logic and functionality that powers the application. The files in this directory are responsible for handling data processing, business logic, and other essential operations.

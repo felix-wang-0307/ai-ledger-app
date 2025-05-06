@@ -11,7 +11,7 @@ SpendWise is a powerful, web-based expense tracking application built with **Nex
 - 🤗 **Multiple LLM Support**: Uses [Together AI](https://togeth.ai) to support various trending LLMs (e.g. GPT, Gemini, DeepSeek, Qwen)
 - 🧠 **LLM-Powered Auto Categorization**: Suggests categories from description or history
 - 🧾 **Receipt OCR Upload**: Extracts bill info from images (screenshots, paper receipts)
-- 💬 **Natural Language Parsing**: Input like `gas 45.5`, `Starbucks 3.8` and GPT fills details
+- 💬 **Natural Language Parsing**: Input like `gas 45.5`, `Starbucks 3.8` fill details using LLM + History
 - 📊 **Statistics & Charts**: Visualize spending by category and time
 - 🔐 **User Auth**: Secure email/password signup/login via Supabase Auth
 - 🌎 **Multi-device**: Fully responsive, works on mobile/tablet/desktop
@@ -23,8 +23,11 @@ SpendWise is a powerful, web-based expense tracking application built with **Nex
 | Layer         | Tech                        |
 |---------------|-----------------------------|
 | Frontend      | Next.js (App Router), [Ant Design](https://ant.design), [Tailwind CSS](https://tailwindcss.com) |
-| Backend       | Next.js API Routes (Edge/serverless) |
+| Backend       | Supabase BaaS + Next.js model functions |
 | Auth & DB     | Supabase (Postgres, Auth, Storage) |
+
+| Functionality | Tech                        |
+|---------------|-----------------------------|
 | OCR           | Tesseract.js |
 | LLM           | [Together AI](https://togeth.ai) or [OpenAI](https://openai.com) |
 | Charts        | [Chart.js](https://www.chartjs.org) |
@@ -32,7 +35,7 @@ SpendWise is a powerful, web-based expense tracking application built with **Nex
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Local Deployment)
 
 ### 1. Clone the repo
 
@@ -125,16 +128,6 @@ npm run build
 
 - Optional: users can enter their own GPT API key for privacy and control
 
----
-
-## 🧳 Deployment
-
-- 🔥 **Frontend + API**: [Vercel](https://vercel.com) (1-click from GitHub)
-- ☁️ **Database/Auth**: [Supabase](https://supabase.com) (Postgres + Auth + File Upload)
-- 💬 **LLM** : [Together AI](https://togeth.ai) or [OpenAI](https://openai.com) (API key required)
-- 🤖 **OCR**:
-  - Local: Tesseract.js (in-browser, no cost)
-  - Cloud: Google Cloud Vision API
 
 ---
 
