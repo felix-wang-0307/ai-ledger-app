@@ -60,7 +60,10 @@ export function useLLMSession({
 
     setHistory((prev) => [...prev, newMessage]);
 
-    await requestLLM(message, history);
+    await requestLLM({
+      message,
+      history
+    });
   };
 
   return {

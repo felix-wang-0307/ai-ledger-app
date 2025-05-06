@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { supabase } from "@/lib/db";
 import { useRouter, useSearchParams } from "next/navigation";
 import clsx from "clsx"; 
@@ -9,7 +9,7 @@ interface AuthFormProps {
   type: "login" | "signup";
 }
 
-export default function AuthForm({ type }: AuthFormProps) {
+function AuthForm({ type }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -249,5 +249,16 @@ export default function AuthForm({ type }: AuthFormProps) {
         )}
       </p>
     </form>
+  );
+}
+
+
+export default function AuthPage({ type }: { type: "login" | "signup" }) {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuthForm type={type} />
+      </Suspense>
+    </div>
   );
 }
