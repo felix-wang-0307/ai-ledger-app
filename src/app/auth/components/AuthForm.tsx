@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { supabase } from "@/lib/db";
 import { useRouter, useSearchParams } from "next/navigation";
-import clsx from "clsx"; 
+import clsx from "clsx";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -21,7 +21,7 @@ function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
 
   const validateEmail = (email: string) => {
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError((prev) => ({
         ...prev,
         emailError: "Invalid email address",
@@ -33,14 +33,15 @@ function AuthForm({ type }: AuthFormProps) {
       emailError: "",
     }));
     return true;
-  }
+  };
 
   const validatePassword = (pw: string) => {
     // Password must be at least 6 characters long and contain letters and numbers
     if (!/^(?=.*[a-zA-Z])(?=.*\d).{6,}$/.test(pw)) {
       setError((prev) => ({
         ...prev,
-        passwordError: "Password must be at least 6 characters long and contain letters and numbers",
+        passwordError:
+          "Password must be at least 6 characters long and contain letters and numbers",
       }));
       return false;
     }
@@ -49,7 +50,7 @@ function AuthForm({ type }: AuthFormProps) {
       passwordError: "",
     }));
     return true;
-  }
+  };
 
   const validateConfirmPassword = (pw: string) => {
     if (type === "signup" && password !== pw) {
@@ -64,14 +65,16 @@ function AuthForm({ type }: AuthFormProps) {
       confirmPasswordError: "",
     }));
     return true;
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError({});
 
-    const valid = validateEmail(email) && validatePassword(password) && 
-        (type === "signup" ? validateConfirmPassword(confirmPassword) : true);
+    const valid =
+      validateEmail(email) &&
+      validatePassword(password) &&
+      (type === "signup" ? validateConfirmPassword(confirmPassword) : true);
 
     if (!valid) return;
     setShowSubmitError(true);
@@ -130,7 +133,7 @@ function AuthForm({ type }: AuthFormProps) {
       default:
         break;
     }
-  } 
+  };
 
   return (
     <form
@@ -252,13 +255,10 @@ function AuthForm({ type }: AuthFormProps) {
   );
 }
 
-
 export default function AuthPage({ type }: { type: "login" | "signup" }) {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Suspense fallback={<div>Loading...</div>}>
-        <AuthForm type={type} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthForm type={type} />
+    </Suspense>
   );
 }
